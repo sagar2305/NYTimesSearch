@@ -14,6 +14,7 @@ import android.widget.GridView;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.nytsearch.nytimessearch.adapters.ArticleArrayAdapter;
 import com.nytsearch.nytimessearch.models.Article;
 
 import org.json.JSONArray;
@@ -31,6 +32,7 @@ public class SearchActivity extends AppCompatActivity {
     Button btnSearch;
 
     ArrayList<Article> articles;
+    ArticleArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,8 @@ public class SearchActivity extends AppCompatActivity {
         gvResults = findViewById(R.id.gvResults);
         btnSearch = findViewById(R.id.btnSearch);
         articles = new ArrayList<>();
+        adapter = new ArticleArrayAdapter(this, articles);
+        gvResults.setAdapter(adapter);
     }
 
     @Override
@@ -98,8 +102,7 @@ public class SearchActivity extends AppCompatActivity {
 
                 try {
                     articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                    articles.addAll(Article.fromJSONArray(articleJSONResults));
-
+                    adapter.addAll(Article.fromJSONArray(articleJSONResults));
                     Log.d("DEBUG", articles.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
