@@ -8,8 +8,8 @@
     tools:context="com.nytsearch.nytimessearch.activities.SearchActivity"
     tools:showIn="@layout/activity_search">
 
-    <GridView
-        android:id="@+id/gvResults"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvResults"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

@@ -1,23 +1,23 @@
 package com.nytsearch.nytimessearch.activities;
 
-import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.nytsearch.nytimessearch.R;
-import com.nytsearch.nytimessearch.adapters.ArticleArrayAdapter;
+import com.nytsearch.nytimessearch.adapters.ArticleAdapter;
 import com.nytsearch.nytimessearch.models.Article;
 
 import org.json.JSONArray;
@@ -30,10 +30,29 @@ import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
 
-    GridView gvResults;
+    public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        private final int mSpace;
+
+        public SpacesItemDecoration(int space) {
+            this.mSpace = space;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            outRect.left = mSpace;
+            outRect.right = mSpace;
+            outRect.bottom = mSpace;
+
+            // Add top margin only for the first item to avoid double space between items
+            if (parent.getChildAdapterPosition(view) == 0)
+                outRect.top = mSpace;
+        }
+    }
+
+    RecyclerView rvResults;
 
     ArrayList<Article> articles;
-    ArticleArrayAdapter adapter;
+    ArticleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,28 +65,34 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void setupViews() {
-        gvResults = findViewById(R.id.gvResults);
+        rvResults = findViewById(R.id.rvResults);
         articles = new ArrayList<>();
-        adapter = new ArticleArrayAdapter(this, articles);
-        gvResults.setAdapter(adapter);
+        adapter = new ArticleAdapter(this, articles);
+        rvResults.setAdapter(adapter);
 
-        // hook up listener for grid click
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                // create an intent to display the article
-                Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
+        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+//        manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        rvResults.setLayoutManager(manager);
 
-                // get the article to display
-                Article article = articles.get(i);
-
-                // pass the article into the intent
-                intent.putExtra("article", article);
-
-                // launch the activity
-                startActivity(intent);
-            }
-        });
+        RecyclerView.ItemDecoration itemDecoration = new SpacesItemDecoration(16);
+        rvResults.addItemDecoration(itemDecoration);
+//        // hook up listener for grid click
+//        rvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                // create an intent to display the article
+//                Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
+//
+//                // get the article to display
+//                Article article = articles.get(i);
+//
+//                // pass the article into the intent
+//                intent.putExtra("article", article);
+//
+//                // launch the activity
+//                startActivity(intent);
+//            }
+//        });
     }
 
     @Override
@@ -98,7 +123,8 @@ public class SearchActivity extends AppCompatActivity {
 
                         try {
                             articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                            adapter.addAll(Article.fromJSONArray(articleJSONResults));
+                            articles.addAll(Article.fromJSONArray(articleJSONResults));
+                            adapter.notifyDataSetChanged();
                             Log.d("DEBUG", articles.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
