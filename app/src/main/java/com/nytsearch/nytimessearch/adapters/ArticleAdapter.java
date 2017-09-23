@@ -1,6 +1,7 @@
 package com.nytsearch.nytimessearch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nytsearch.nytimessearch.R;
+import com.nytsearch.nytimessearch.activities.ArticleActivity;
 import com.nytsearch.nytimessearch.models.Article;
 import com.squareup.picasso.Picasso;
 
@@ -23,7 +25,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public ImageView ivImage;
@@ -38,6 +40,24 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
 
             ivImage = itemView.findViewById(R.id.ivImage);
             tvTitle = itemView.findViewById(R.id.tvTitle);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+
+            int position = getAdapterPosition(); // gets item position
+            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                Article article = mArticles.get(position);
+                // We can access the data within the views
+                Intent intent = new Intent(getContext(), ArticleActivity.class);
+
+                // pass the article into the intent
+                intent.putExtra("article", article);
+
+                // launch the activity
+                getContext().startActivity(intent);
+            }
         }
     }
 
