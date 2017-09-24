@@ -18,6 +18,7 @@
         android:layout_marginLeft="18dp"
         android:layout_marginStart="18dp"
         android:layout_marginTop="21dp"
+        android:textSize="16sp"
         android:text="@string/begin_date" />
 
     <TextView
@@ -25,10 +26,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/tvBeginDate"
-        android:layout_marginLeft="26dp"
-        android:layout_marginStart="26dp"
+        android:textSize="16sp"
         android:layout_toEndOf="@+id/tvBeginDate"
         android:layout_toRightOf="@+id/tvBeginDate"
+        android:layout_marginLeft="100dp"
         android:text="Date" />
 
     <TextView
@@ -39,6 +40,7 @@
         android:layout_alignStart="@+id/tvBeginDate"
         android:layout_below="@+id/tvBeginDate"
         android:layout_marginTop="25dp"
+        android:textSize="16sp"
         android:text="@string/sort_order" />
 
     <Spinner
@@ -47,7 +49,9 @@
         android:layout_toRightOf="@id/tvSortOrder"
         android:layout_below="@id/tvDateValue"
         android:layout_alignTop="@+id/tvSortOrder"
+        android:layout_marginLeft="98dp"
         android:entries="@array/sort_array"
+        android:textSize="16sp"
         android:layout_height="wrap_content" />
 
     <TextView
@@ -58,6 +62,7 @@
         android:layout_alignStart="@+id/tvBeginDate"
         android:layout_below="@+id/tvSortOrder"
         android:layout_marginTop="25dp"
+        android:textSize="16sp"
         android:text="@string/news_desk_values" />
 
     <CheckBox android:id="@+id/cbArts"
@@ -65,7 +70,9 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/tvNewsDesk"
         android:layout_below="@id/spSortSpinner"
+        android:textSize="16sp"
         android:layout_alignTop="@+id/tvNewsDesk"
+        android:layout_marginLeft="45dp"
         android:text="@string/arts" />
 
     <CheckBox android:id="@+id/cbFashion"
@@ -73,6 +80,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/tvNewsDesk"
         android:layout_below="@+id/cbArts"
+        android:layout_marginLeft="45dp"
+        android:textSize="16sp"
         android:text="@string/fashion_style" />
 
     <CheckBox android:id="@+id/cbSports"
@@ -80,6 +89,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/tvNewsDesk"
         android:layout_below="@id/cbFashion"
+        android:layout_marginLeft="45dp"
+        android:textSize="16sp"
         android:text="@string/sports" />
 
     <Button
@@ -89,6 +100,7 @@
         android:layout_below="@+id/cbSports"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
+        android:textSize="16sp"
         android:text="@string/save"
         android:onClick="onSaveClicked"/>
 

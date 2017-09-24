@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -40,11 +42,13 @@ public class FilterActivity extends AppCompatActivity {
         setupViews();
     }
 
-    private void updateLabel() {
+    private void updateDateLabel() {
         String myFormat = "MM/dd/yy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
-        tvDate.setText(sdf.format(myCalendar.getTime()));
+        SpannableString content = new SpannableString(sdf.format(myCalendar.getTime()));
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+        tvDate.setText(content);
     }
 
     private void setupViews() {
@@ -55,7 +59,6 @@ public class FilterActivity extends AppCompatActivity {
         cbSports = findViewById(R.id.cbSports);
 
         myCalendar = Calendar.getInstance();
-        updateLabel();
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -64,7 +67,7 @@ public class FilterActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                updateLabel();
+                updateDateLabel();
             }
 
         };
@@ -77,6 +80,8 @@ public class FilterActivity extends AppCompatActivity {
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        updateDateLabel();
     }
 
     private String getNewsDesk() {
