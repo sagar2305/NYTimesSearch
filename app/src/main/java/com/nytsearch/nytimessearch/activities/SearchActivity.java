@@ -1,5 +1,6 @@
 package com.nytsearch.nytimessearch.activities;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -31,6 +32,8 @@ import cz.msebera.android.httpclient.Header;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 public class SearchActivity extends AppCompatActivity {
+
+    public int REQUEST_CODE = 121;
 
     public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
         private final int mSpace;
@@ -176,7 +179,9 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_filter) {
+            Intent intent = new Intent(this, FilterActivity.class);
+            startActivityForResult(intent, REQUEST_CODE);
             return true;
         }
 
