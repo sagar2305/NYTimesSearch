@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,10 +22,12 @@ import com.nytsearch.nytimessearch.R;
 import com.nytsearch.nytimessearch.adapters.ArticleAdapter;
 import com.nytsearch.nytimessearch.models.Article;
 import com.nytsearch.nytimessearch.utils.EndlessRecyclerViewScrollListener;
+import com.nytsearch.nytimessearch.utils.FilterSettings;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -61,6 +64,8 @@ public class SearchActivity extends AppCompatActivity {
     ArticleAdapter adapter;
     String query;
 
+    FilterSettings filterSettings;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +104,7 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void resetSearch() {
+        searchView.clearFocus();
         // 1. First, clear the array of data
         articles.clear();
 // 2. Notify the adapter of the update
@@ -116,6 +122,19 @@ public class SearchActivity extends AppCompatActivity {
         params.put("page", pageNo);
         params.put("q", query);
 
+        if (filterSettings != null) {
+            String newsDesk = filterSettings.getNewsDesk();
+            if (!TextUtils.isEmpty(newsDesk)) {
+                params.put("fq", "news_desk:" + newsDesk);
+            }
+
+            String date = filterSettings.getDate();
+            params.put("begin_date", date);
+
+            String sortOrder = filterSettings.getSortOrder();
+            params.put("sort", sortOrder);
+        }
+
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -126,6 +145,7 @@ public class SearchActivity extends AppCompatActivity {
                     articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
                     articles.addAll(Article.fromJSONArray(articleJSONResults));
                     adapter.notifyDataSetChanged();
+                    searchView.clearFocus();
                     Log.d("DEBUG", articles.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -149,7 +169,7 @@ public class SearchActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_search, menu);
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -186,5 +206,16 @@ public class SearchActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            FilterSettings settings = Parcels.unwrap(data.getParcelableExtra("settings"));
+            this.filterSettings = settings;
+
+            resetSearch();
+            fetchPage(0);
+        }
     }
 }
