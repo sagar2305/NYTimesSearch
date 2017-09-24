@@ -91,6 +91,15 @@ public class SearchActivity extends AppCompatActivity {
         rvResults.addOnScrollListener(scrollListener);
     }
 
+    private void resetSearch() {
+        // 1. First, clear the array of data
+        articles.clear();
+// 2. Notify the adapter of the update
+        adapter.notifyDataSetChanged(); // or notifyItemRangeRemoved
+// 3. Reset endless scroll listener when performing a new search
+        scrollListener.resetState();
+    }
+
     private void fetchPage(int pageNo) {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
@@ -130,6 +139,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String queryStr) {
 
+                resetSearch();
                 query = queryStr;
                 fetchPage(0);
                 searchView.clearFocus();
