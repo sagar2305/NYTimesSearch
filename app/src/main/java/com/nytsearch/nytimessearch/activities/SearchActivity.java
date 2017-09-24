@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -78,12 +79,15 @@ public class SearchActivity extends AppCompatActivity {
 //        manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         rvResults.setLayoutManager(manager);
 
+        rvResults.setItemAnimator(new SlideInUpAnimator());
+
         RecyclerView.ItemDecoration itemDecoration = new SpacesItemDecoration(16);
         rvResults.addItemDecoration(itemDecoration);
 
         scrollListener = new EndlessRecyclerViewScrollListener(manager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.d("LOAD_MORE", "Page "+ page);
                 fetchPage(page);
             }
         };
@@ -124,7 +128,16 @@ public class SearchActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("HTTP_ERRPR", errorResponse.toString());
+            }
         });
+
+
+
+
     }
 
     @Override
