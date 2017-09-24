@@ -19,6 +19,7 @@ import com.loopj.android.http.RequestParams;
 import com.nytsearch.nytimessearch.R;
 import com.nytsearch.nytimessearch.adapters.ArticleAdapter;
 import com.nytsearch.nytimessearch.models.Article;
+import com.nytsearch.nytimessearch.utils.EndlessRecyclerViewScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,9 +51,12 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     RecyclerView rvResults;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     ArrayList<Article> articles;
     ArticleAdapter adapter;
+    String query;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,23 +80,42 @@ public class SearchActivity extends AppCompatActivity {
 
         RecyclerView.ItemDecoration itemDecoration = new SpacesItemDecoration(16);
         rvResults.addItemDecoration(itemDecoration);
-//        // hook up listener for grid click
-//        rvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                // create an intent to display the article
-//                Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
-//
-//                // get the article to display
-//                Article article = articles.get(i);
-//
-//                // pass the article into the intent
-//                intent.putExtra("article", article);
-//
-//                // launch the activity
-//                startActivity(intent);
-//            }
-//        });
+
+        scrollListener = new EndlessRecyclerViewScrollListener(manager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                fetchPage(page);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvResults.addOnScrollListener(scrollListener);
+    }
+
+    private void fetchPage(int pageNo) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
+
+        RequestParams params = new RequestParams();
+        params.put("api-key", "cee5703f908348c79826f28cf21024c3");
+        params.put("page", pageNo);
+        params.put("q", query);
+
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                JSONArray articleJSONResults;
+
+                try {
+                    articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
+                    articles.addAll(Article.fromJSONArray(articleJSONResults));
+                    adapter.notifyDataSetChanged();
+                    Log.d("DEBUG", articles.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -105,33 +128,10 @@ public class SearchActivity extends AppCompatActivity {
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public boolean onQueryTextSubmit(String queryStr) {
 
-                AsyncHttpClient client = new AsyncHttpClient();
-                String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
-
-                RequestParams params = new RequestParams();
-                params.put("api-key", "cee5703f908348c79826f28cf21024c3");
-                params.put("page", 0);
-                params.put("q", query);
-
-                client.get(url, params, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                        JSONArray articleJSONResults;
-
-                        try {
-                            articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                            articles.addAll(Article.fromJSONArray(articleJSONResults));
-                            adapter.notifyDataSetChanged();
-                            Log.d("DEBUG", articles.toString());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
+                query = queryStr;
+                fetchPage(0);
                 searchView.clearFocus();
                 return true;
             }
