@@ -66,7 +66,7 @@ public class SearchActivity extends AppCompatActivity {
 
     FilterSettings filterSettings;
     SearchView searchView;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,7 +154,7 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("HTTP_ERRPR", errorResponse.toString());
+//                Log.d("HTTP_ERRPR", errorResponse.toString());
             }
         });
 
