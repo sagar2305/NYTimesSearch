@@ -3,6 +3,7 @@ package com.nytsearch.nytimessearch.activities;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,7 @@ import com.nytsearch.nytimessearch.adapters.ArticleAdapter;
 import com.nytsearch.nytimessearch.models.Article;
 import com.nytsearch.nytimessearch.utils.EndlessRecyclerViewScrollListener;
 import com.nytsearch.nytimessearch.utils.FilterSettings;
+import com.nytsearch.nytimessearch.utils.Helpers;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +68,7 @@ public class SearchActivity extends AppCompatActivity {
 
     FilterSettings filterSettings;
     SearchView searchView;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +116,16 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void fetchPage(int pageNo) {
+
+        if (!Helpers.isInternetAvailable(getBaseContext())) {
+            // Pass in the click listener when displaying the Snackbar
+            View parentLayout = findViewById(android.R.id.content);
+            Snackbar.make(parentLayout, R.string.internet_not_available, Snackbar.LENGTH_LONG)
+                    .show();
+
+            return;
+        }
+
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
 
